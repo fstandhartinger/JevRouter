@@ -97,7 +97,7 @@ Try everything offline with the labelled demo provider (`--provider demo`) — n
 ### Using a Jev-compatible endpoint: Decision Models
 
 `HttpJevProvider` accepts a complete endpoint URL, so you can use
-[Decision Models](https://api.decisionmodels.io/llms.txt) without changing the provider implementation.
+[Decision Models](https://decisionmodels.io/docs/quickstart) ([llms.txt](https://decisionmodels.io/llms.txt)) without changing the provider implementation.
 Set `DECISION_MODELS_API_KEY` in your environment, then pass it explicitly:
 
 ```ts
@@ -122,9 +122,16 @@ const raw = await provider.decide({
 console.log(getNoulAnswer(raw, "is_urgent").noul);
 ```
 
-`s1-fast` accepts one question per request; `s1-pro` accepts up to three. Keep question batches within the
-selected model's limit. For multi-step plans, use serial mode or bound batch mode to that question limit;
-JevRouter does not automatically split oversized batches for this endpoint.
+Limits that matter for `route` and `plan` with this endpoint (live values:
+[`GET /v1/models`](https://api.decisionmodels.io/v1/models), [API limits](https://decisionmodels.io/docs/api)):
+
+- **Questions per request:** `s1-fast` accepts one, `s1-pro` up to three. Batch mode sends one Choice question
+  per step in a single request and defaults to three steps, so with `s1-fast` use `steps: 1` in batch mode, or
+  serial mode for a multi-step plan. `s1-pro` fits the default three batch steps. JevRouter does not split
+  oversized batches for this endpoint.
+- **Candidates:** in both modes each candidate becomes one Choice criterion, and the API requires at least two,
+  so pass at least two candidates. `s1-fast` accepts at most 16 options per Choice question.
+- The Noul example above needs no candidates.
 
 ## Cookbook
 
