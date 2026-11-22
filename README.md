@@ -129,8 +129,15 @@ Limits that matter for `route` and `plan` with this endpoint (live values:
   per step in a single request and defaults to three steps, so with `s1-fast` use `steps: 1` in batch mode, or
   serial mode for a multi-step plan. `s1-pro` fits the default three batch steps. JevRouter does not split
   oversized batches for this endpoint.
-- **Candidates:** in both modes each candidate becomes one Choice criterion, and the API requires at least two,
-  so pass at least two candidates. `s1-fast` accepts at most 16 options per Choice question.
+- **Options per Choice question:** the API requires at least two options in every Choice question JevRouter
+  sends, and accepts at most 16 with `s1-fast` and at most 64 with `s1-pro`.
+  - *Ungrouped plans* (no `group_by`): each candidate becomes one option, so pass at least two candidates. `route`
+    sends all candidates in its first Choice question before narrowing, so keep the full list within the cap
+    (16 for `s1-fast`, 64 for `s1-pro`).
+  - *Grouped plans* (`group_by: "server"` or `"type"`): the limits apply per stage. The coarse question has one
+    option per group, and the final question has one option per tool in the winning group. So every stage needs
+    at least two groups and at least two tools in each group (for example, two tools of the same type with
+    `group_by: "type"` produce a coarse question with only one option), and neither stage may exceed the cap.
 - The Noul example above needs no candidates.
 
 ## Cookbook
